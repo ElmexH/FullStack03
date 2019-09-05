@@ -102,6 +102,6 @@ app.get("/info", (req, res) => {
 
 const PORT = 3001 = process.env.PORT || 3001
 
-app.listen(port, () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
