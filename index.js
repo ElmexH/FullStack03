@@ -14,6 +14,8 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :j
 
 app.use(cors())
 
+app.use(express.static('build'))
+
 const options = {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short', hour12: false };
 
 let persons = [
