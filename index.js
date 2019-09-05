@@ -1,8 +1,15 @@
 const express = require('express')
 const app = express()
 const bodyParser = require("body-parser")
+const morgan = require("morgan")
 
 app.use(bodyParser.json())
+
+morgan.token('json', function (req, res) { 
+    return JSON.stringify(req.body)
+})
+
+app.use(morgan(":method :url :status :res[content-length] - :response-time ms :json"))
 
 const options = {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short', hour12: false };
 
