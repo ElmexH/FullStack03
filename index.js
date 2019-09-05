@@ -1,7 +1,8 @@
-const express = require('express')
-const app = express()
-const bodyParser = require("body-parser")
-const morgan = require("morgan")
+const express       = require('express')
+const app           = express()
+const bodyParser    = require("body-parser")
+const morgan        = require("morgan")
+const cors          = require("cors")
 
 app.use(bodyParser.json())
 
@@ -10,6 +11,8 @@ morgan.token('json', function (req, res) {
 })
 
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :json"))
+
+app.use(cors())
 
 const options = {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short', hour12: false };
 
@@ -97,8 +100,8 @@ app.get("/info", (req, res) => {
 })
 
 
-const port = 3001
+const PORT = 3001 = process.env.PORT || 3001
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+    console.log(`Server running on port ${PORT}`)
 })
