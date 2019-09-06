@@ -1,13 +1,18 @@
+require('dotenv').config()
 const express       = require('express')
 const app           = express()
 const bodyParser    = require("body-parser")
 const morgan        = require("morgan")
 const cors          = require("cors")
+const Person        = require("./models/person")
 
 app.use(bodyParser.json())
 
 morgan.token('json', function (req, res) { 
-    return JSON.stringify(req.body)
+    if (req.method == "POST") {
+        return JSON.stringify(req.body)
+    } else
+        return null
 })
 
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :json"))
@@ -15,6 +20,8 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :j
 app.use(cors())
 
 app.use(express.static('build'))
+
+
 
 const options = {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short', hour12: false };
 
@@ -37,18 +44,23 @@ const idGen = () => {
 }
 
 app.get("/api/persons", (req, res) => {
-    res.json(persons)
+    Person.find({}).then(persons => {
+        res.json(persons.map(note => note.toJSON()))
+    })
 })
 
 app.get("/api/persons/:id", (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(person => person.id === id)
-
-    if (person) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+    Person.findById(req.params.id)
+        .then(person => {
+            if (person) {
+                res.json(person.toJSON())
+            } else {
+                res.status(404).end()
+            }
+        })
+        .catch(error => {
+            res.status(400).send({error: "malformatted if"})
+        })
 })
 
 app.delete("/api/persons/:id", (req, res) => {
@@ -58,32 +70,26 @@ app.delete("/api/persons/:id", (req, res) => {
 })
 
 app.post("/api/persons", (req, res) => {
-    const person = req.body
+    const body = req.body
     
-    if (!person.name) {
+    if (!body.name) {
         return res.status(400).json({ 
           error: 'name missing' 
         })
     }
-    if (!person.number) {
-    return res.status(400).json({ 
-        error: 'number missing' 
-    })
-    }
-    if (persons.some(oldPerson => oldPerson.name === person.name)) {
-        return res.status(400).json({
-            error: 'person already in list'
+    if (!body.number) {
+        return res.status(400).json({ 
+            error: 'number missing' 
         })
     }
 
-    const newPerson = {
-        name: person.name,
-        number: person.number,
-        id: idGen()
-    }
-    persons = persons.concat(newPerson)
-
-    res.json(newPerson)
+    const person = new Person({
+        name: body.name,
+        number: body.number
+    })
+    person.save().then(newPerson => {
+        res.json(newPerson.toJSON())
+    })
 })
 
 app.get("/info", (req, res) => {
