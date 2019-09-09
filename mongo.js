@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 
+mongoose.set('useFindAndModify', false)
+
 if ( process.argv.length<3 ) {
     console.log('password required as argument')
     process.exit(1)

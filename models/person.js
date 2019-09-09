@@ -1,13 +1,11 @@
-const mongoose = require("mongoose")
+const mongoose  = require("mongoose")
+const uniqueVal = require('mongoose-unique-validator')
 
 const url = process.env.MONGODB_URI
 
-//const url = 
-  //  `mongodb+srv://FullStack:${password}@fullstackdb-1jqom.mongodb.net/phonenumbers?retryWrites=true&w=majority`
-
 console.log('connecting to ', url)
 
-mongoose.connect(url, {useNewUrlParser: true})
+mongoose.connect(url, {useNewUrlParser: true, useCreateIndex: true })
     .then(result => {
         console.log('connected to MongoDB')
     })
@@ -17,9 +15,20 @@ mongoose.connect(url, {useNewUrlParser: true})
 
 
 const personSchema = new mongoose.Schema({
-    name:String,
-    number:String
+    name: {
+        type: String,
+        required: true,
+        minlength: 3,
+        unique: true
+    },
+    number: {
+        type: String,
+        minlength: 8,
+        required: true
+    }
 })
+
+personSchema.plugin(uniqueVal)
 
 personSchema.set("toJSON", {
     transform: (document, returnedObject) => {
