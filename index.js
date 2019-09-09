@@ -1,5 +1,6 @@
-                      require('dotenv').config()
-const express       = require('express')
+require("dotenv").config()
+
+const express       = require("express")
 const app           = express()
 const bodyParser    = require("body-parser")
 const morgan        = require("morgan")
@@ -8,7 +9,7 @@ const Person        = require("./models/person")
 
 app.use(bodyParser.json())
 
-morgan.token('json', function (req, res) { 
+morgan.token("json", function (req, res) {
     if (req.method == "POST") {
         return JSON.stringify(req.body)
     } else
@@ -19,18 +20,13 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :j
 
 app.use(cors())
 
-app.use(express.static('build'))
+app.use(express.static("build"))
 
 
 
-const options = {  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short', hour12: false };
+const options = {  weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short", hour12: false }
 
-const idGen = () => {
-    return Math.floor(Math.random()*1000000)
-
-}
-
-app.get("/api/persons", (req, res, next) => {
+app.get("/api/persons", (req, res) => {
     Person.find({}).then(persons => {
         res.json(persons.map(note => note.toJSON()))
     })
@@ -58,7 +54,7 @@ app.delete("/api/persons/:id", (req, res, next) => {
 
 app.post("/api/persons", (req, res, next) => {
     const body = req.body
-    
+
     const person = new Person({
         name: body.name,
         number: body.number
@@ -74,8 +70,8 @@ app.put("/api/persons/:id", (req, res, next) => {
     const id = req.params.id
 
     if (!body.number) {
-        return res.status(400).json({ 
-            error: 'number missing' 
+        return res.status(400).json({
+            error: "number missing"
         })
     }
 
@@ -83,14 +79,14 @@ app.put("/api/persons/:id", (req, res, next) => {
         number: body.number
     }
 
-    Person.findByIdAndUpdate(id, note, {new: true})
+    Person.findByIdAndUpdate(id, note, { new: true })
         .then(newNote => {
             res.json(newNote.toJSON())
         })
         .catch(error => next(error))
 })
 
-app.get("/info", (req, res, next) => {
+app.get("/info", (req, res) => {
     Person.find({})
         .then(persons => {
             const html = `
@@ -99,19 +95,19 @@ app.get("/info", (req, res, next) => {
                         Phonebook has info for ${persons.length} people
                     </div>
                     <div>
-                        ${new Date().toLocaleTimeString('en-us', options)}
+                        ${new Date().toLocaleTimeString("en-us", options)}
                     </div>    
                 </div>    
             `
-            res.send(html) 
+            res.send(html)
         })
 
-        
+
 })
 
-const uknownEndpoint = (req, res, next) => {
-    console.log('req :', req.body);
-    res.status(404).send({ error: "uknown endpoint"})
+const uknownEndpoint = (req, res) => {
+    console.log("req :", req.body)
+    res.status(404).send({ error: "uknown endpoint" })
 }
 
 app.use(uknownEndpoint)
@@ -122,7 +118,7 @@ const errorHandler = (err, req, res, next) => {
     if (err.name === "CastError" && err.kind == "ObjectId") {
         return res.status(400).send({ error: "Invalid id formatting" })
     } else if (err.name === "ValidationError") {
-        return res.status(400).json({error: err.message})
+        return res.status(400).json({ error: err.message })
     }
 
     next(err)
